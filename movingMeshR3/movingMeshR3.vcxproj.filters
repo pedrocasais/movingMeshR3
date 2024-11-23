@@ -33,4 +33,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="TransformVertexShader.vertexshader" />
+    <None Include="ColorFragmentShader.fragmentshader" />
+    <None Include="hangar.fs" />
+  </ItemGroup>
 </Project>
