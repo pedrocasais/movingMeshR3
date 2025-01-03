@@ -24,6 +24,12 @@
     <ClCompile Include="objloader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.hpp">
@@ -32,10 +38,17 @@
     <ClInclude Include="objloader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="controls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="TransformVertexShader.vertexshader" />
     <None Include="ColorFragmentShader.fragmentshader" />
     <None Include="hangar.fs" />
+    <None Include="hangar.vs" />
   </ItemGroup>
 </Project>
