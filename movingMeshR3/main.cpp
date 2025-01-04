@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <vector>
 
+
 // Include GLEW
 #include <GL/glew.h>
 
@@ -13,11 +14,13 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
 #include "shader.hpp"
 #include "objloader.hpp"
 #include "controls.hpp"
+#include "texture.hpp"
 
 
 #define 	GLFW_KEY_A   65
@@ -98,13 +101,30 @@ int main(void)
 
 	// Create and compile shaders
 	GLuint programID = LoadShaders("TransformVertexShader.vertexshader", "ColorFragmentShader.fragmentshader");
+	GLuint programID2 = LoadShaders("hangar.vs", "hangar.fs");
 
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+	GLuint ModelMatrixID = glGetUniformLocation(programID, "model");
 
+
+	// Load the texture
+	GLuint Texture = loadBMP_custom("resources/uvtemplate.bmp");
+	if (Texture == 0) {
+		fprintf(stderr, "Failed to load texture\n");
+		return -1;
+	}
+
+	// Add texture setup
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Get a handle for our "myTextureSampler" uniform
-	//GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
+	GLuint TextureID = glGetUniformLocation(programID2, "myTextureSampler");
 
 	// Read our .obj file
 	std::vector<glm::vec3> vertices;
@@ -172,15 +192,24 @@ int main(void)
 
 
 	float xAxis = -86.0f;
-	float yAxis = 3.0f;
+	float yAxis = 0.0f;
 	float zAxis = -85.0f;
-	float xAxis3 = -33.0f;
-	float yAxis3 = -85.0f;
+	float xAxis3 = -30.0f;
+	float yAxis3 = -70.0f;
 	float zAxis3 = -85.0f;
 	float xAxis2 = 4.0f;
 	float yAxis2 = 3.0f;
 	float zAxis2 = 3.0f;
 	//glfwSetKeyCallback(window, keyPressed);
+	bool animation = true;
+	bool animation2 = false;
+	bool animation3 = false;
+	bool animation4 = false;
+	float rotate = 270.0f;
+	float rotate2 = 90.0f;
+
+
+
 
 	do {
 		
@@ -189,6 +218,17 @@ int main(void)
 
 		// Use our shader
 		glUseProgram(programID);
+		//glm::vec3 lightPos = glm::vec3(-9, 0, -2);
+		//glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
+		//computeMatricesFromInputs();
+		//glm::mat4 projection = getProjectionMatrix();
+		//glm::mat4 view = getViewMatrix();
+		//glm::vec3 viewPos = glm::vec3(View[0][0], 0, -2);
+
+		//glm::vec3 lightColor = glm::vec3(0.5, 0.5, 0.5);
+		//glUniform3f(LightID2, lightColor.x, lightColor.y, lightColor.z);
+		
+		//glUniform3f(objID, lightColor.x, lightColor.y, lightColor.z);
 
 		// Compute the MVP matrix from keyboard and mouse input
 
@@ -209,22 +249,96 @@ int main(void)
 			yAxis += 1.0f;
 
 		}
-		//if (glfwGetKey(window, GLFW_KEY_ARROW_UP) == GLFW_PRESS) {
-		//	xAxis3 -= 1.0f;
+		if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+			xAxis2 -= 1.0f;
 
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_ARROW_DOWN) == GLFW_PRESS) {
-		//	xAxis3 += 1.0f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+			xAxis2 += 1.0f;
 
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_ARROW_LEFT) == GLFW_PRESS) {
-		//	yAxis3 += 1.0f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+			zAxis2 += 1.0f;
 
-		//}
-		//if (glfwGetKey(window, GLFW_KEY_ARROW_RIGHT) == GLFW_PRESS) {
-		//	yAxis3 -= 1.0f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+			zAxis2 -= 1.0f;
 
-		//}
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+			yAxis2 += 1.0f;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+			yAxis2 -= 1.0f;
+
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_KP_4) == GLFW_PRESS) {
+			rotate2 -= 1.0f;
+
+		}
+		if (glfwGetKey(window, GLFW_KEY_KP_6) == GLFW_PRESS) {
+			rotate2 += 1.0f;
+
+		}
+		//printf("%f\t%f\n", rotate, yAxis3);
+		if (animation) {
+			yAxis3 += 0.05f;
+			if (yAxis3 >= -19.0f) {
+				yAxis3 = -19.0f;
+				rotate -= 1.0f;
+				if (rotate <= 180.0f) {
+					animation = false;
+					animation2 = true;
+				}
+				
+				
+			}
+			
+		}
+		if (animation2)
+		{
+			xAxis3 -= 0.05f;
+			if (xAxis3 <= -89.0f) {
+				xAxis3 = -89.0f;
+	
+				rotate += 1.0f;
+				if (rotate >= 360.0f) {
+					animation2 = false;
+					animation3 = true;
+				}
+
+			}
+		}
+
+		if (animation3)
+		{
+			xAxis3 += 0.05f;
+			if (xAxis3 >= -30.0f) {
+				xAxis3 = -30.0f;
+				rotate += 1.0f;
+				if (rotate >= 450.0f) {
+					animation3 = false;
+					animation4 = true;
+				}
+				
+			}
+		}
+
+		if (animation4) {
+			yAxis3 -= 0.05f;
+			if (yAxis3 <= -70.0f) {
+				yAxis3 = -70.0f;
+				rotate += 1.0f;
+				if (rotate >= 540.0f) {
+					animation4 = false;
+					animation = true;
+				}
+			}
+		}
+		if (rotate >= 540.0f) rotate = 270.0f;
 		//xAxis2 += 1;
 		if (xAxis > 80.0f) {
 			//xAxis = 4.0f;
@@ -240,30 +354,50 @@ int main(void)
 			//zAxis = 3.0f;
 		}
 		// MVP Matrices
-		computeMatricesFromInputs();
-		glm::mat4 Projection = getProjectionMatrix();
-		glm::mat4 View = getViewMatrix();
-		//glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-		//glm::mat4 View = glm::lookAt(
-		//	glm::vec3(xAxis2, yAxis2, zAxis2),  // Camera position
-		//	glm::vec3(0, 0, 0),  // Look at origin
-		//	glm::vec3(0, 1, 0)   // Up vector
-		//);
+
+
+		// Set uniforms (light position, view position, etc.)
+        glm::vec3 lightPos(8.0f, 0.0f, -1.0f);
+        glm::vec3 viewPos(-4.0f, 3.0f, -3.0f);
+
+        glUniform3f(glGetUniformLocation(programID, "lightPos"), xAxis, yAxis, zAxis);
+        glUniform3f(glGetUniformLocation(programID, "viewPos"), -xAxis2,yAxis2,-zAxis2);
+        glUniform3f(glGetUniformLocation(programID, "lightColor"), 1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(programID, "objectColor"), 1.0f, 1.0f, 1.0f);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, TextureID);
+		glUniform1i(glGetUniformLocation(programID, "texture1"), 0);
+
+		
+
+
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+		glm::mat4 view = glm::lookAt(
+			glm::vec3(xAxis2, yAxis2, zAxis2),  // Camera position
+			glm::vec3(0, 0, 0),  // Look at origin
+			glm::vec3(0, 1, 0)   // Up vector
+		);
 		glm::mat4 Model = glm::mat4(1.0f);
+		
+
 
 		
 		Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.08f, 0.08f, 0.08f));// .005 .005 .005
 		Model = glm::translate(Model, glm::vec3(xAxis, 3.0f, yAxis));
-		
-		glm::mat4 MVP = Projection * View * Model;
+		Model = glm::rotate(Model, glm::radians(rotate2), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+		glm::mat4 MVP = projection * view * Model;
 
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, glm::value_ptr(Model));
 		// Bind our texture in Texture Unit 0
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, Texture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Texture);
 		// Set our "myTextureSampler" sampler to use Texture Unit 0
-		//glUniform1i(TextureID, 0);
+		glUniform1i(TextureID, 0);
 
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
@@ -302,10 +436,9 @@ int main(void)
 
 		Model4 = glm::scale(glm::mat4(1.0f), glm::vec3(0.08f, 0.08f, 0.08f));// .005 .005 .005
 		Model4 = glm::translate(Model4, glm::vec3(xAxis3, 3.0f, yAxis3));
+		Model4 = glm::rotate(Model4, glm::radians(rotate), glm::vec3(0.0f, 1.0f, 0.0f));	
 
-
-
-		glm::mat4 MVP4 = Projection * View * Model4;
+		glm::mat4 MVP4 = projection * view * Model4;
 
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP4[0][0]);
 
@@ -350,10 +483,10 @@ int main(void)
 		//HANGAR 1
 		// MVP for the second model
 		glm::mat4 Model2 = glm::mat4(1.0f);
-		Model2 = glm::translate(Model2, glm::vec3(-8.0f, 0.0f, -1.0f)); // Adjust position
-		Model2 = glm::scale(Model2, glm::vec3(0.009f, 0.009f, 0.009f)); // Adjust scale
+		Model2 = glm::translate(Model2, glm::vec3(-8.0f, 0.0f, -1.0f)); 
+		Model2 = glm::scale(Model2, glm::vec3(0.009f, 0.009f, 0.009f));
 
-		glm::mat4 MVP2 = Projection * View * Model2;
+		glm::mat4 MVP2 = projection * view * Model2;
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP2[0][0]);
 
 		// Bind buffers and draw the second model
@@ -391,7 +524,7 @@ int main(void)
 		Model3 = glm::rotate(Model3, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		Model3 = glm::scale(Model3, glm::vec3(0.009f, 0.009f, 0.009f)); // Adjust scale
 
-		glm::mat4 MVP3 = Projection * View * Model3;
+		glm::mat4 MVP3 = projection * view * Model3;
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP3[0][0]);
 
 		// Bind buffers and draw the second model

@@ -1,18 +1,25 @@
-struct Material {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float shininess;
-};
+#version 330 core
 
-uniform Material material;
+// Input vertex data
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
 
-// Example usage in GLSL
+// Output data; will be interpolated for each fragment
+out vec3 FragPos;
+out vec3 Normal;
+
+// Uniform variables
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 void main() {
-    vec3 ambient = material.ambient;
-    vec3 diffuse = material.diffuse;
-    vec3 specular = material.specular;
-    float shininess = material.shininess;
-
-    // Use these in your lighting calculations
+    // Calculate the fragment position in world space
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    
+    // Calculate the normal in world space
+    Normal = mat3(transpose(inverse(model))) * aNormal;  
+    
+    // Calculate the final position of the vertex
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
