@@ -15,7 +15,7 @@ uniform sampler2D texture1;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightColor;
-uniform vec3 objectColor;
+//uniform vec3 objectColor;
 
 void main() {
     // Ambient lighting
@@ -36,7 +36,7 @@ void main() {
     vec3 specular = specularStrength * spec * lightColor;
 
     // Combine results
-    vec3 lighting = (ambient + diffuse + specular) * objectColor;
+    vec3 lighting = (ambient + diffuse + specular) ;
 
     // Apply texture
     vec4 texColor = texture(texture1, UV);
